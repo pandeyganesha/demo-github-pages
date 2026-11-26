@@ -29,6 +29,12 @@
         <label class="slider">Speed
           <input type="range" id="speed" min="1" max="10" value="5">
         </label>
+        <label class="slider">Order
+          <select id="order">
+            <option value="asc">Ascending (small → large)</option>
+            <option value="desc">Descending (large → small)</option>
+          </select>
+        </label>
         <button id="btnRandom" title="Generate a new random array (N key)">New random array</button>
       </div>
       <form id="customForm" class="row custom">
@@ -81,12 +87,12 @@
       <ol>
         <li><strong>Divide:</strong> split the array into two halves at the middle index.</li>
         <li><strong>Conquer:</strong> sort each half by calling merge sort on it (recursion). An array with one element is already sorted, so that's where the recursion stops.</li>
-        <li><strong>Combine:</strong> merge the two sorted halves. Compare the front item of each half, copy the smaller one into the array, and move that half's pointer forward. When one half runs out, copy the rest of the other half.</li>
+        <li><strong>Combine:</strong> merge the two sorted halves. Compare the front item of each half, copy the one that should come first (the smaller one for ascending, the larger one for descending) into the array, and move that half's pointer forward. When one half runs out, copy the rest of the other half.</li>
       </ol>
       <div class="facts">
         <div><strong>O(n log n)</strong><small>time in the best, average and worst case</small></div>
         <div><strong>O(n)</strong><small>extra space for the L and R copies</small></div>
-        <div><strong>Stable</strong><small>equal values keep their order, because ties take from L first (<code>&lt;=</code>)</small></div>
+        <div><strong>Stable</strong><small>equal values keep their order, because ties take from L first (<code>&lt;=</code> for ascending, <code>&gt;=</code> for descending)</small></div>
       </div>
       <p class="why"><strong>Why n log n?</strong> Halving n elements until each piece has one takes about log₂ n levels (that's the height of the tree above). On every level, merging touches each of the n elements once. So the total work is about n × log₂ n.</p>
       <p class="keys">Keyboard: <kbd>Space</kbd> play/pause · <kbd>←</kbd> <kbd>→</kbd> step · <kbd>R</kbd> restart · <kbd>N</kbd> new array</p>

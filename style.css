@@ -87,6 +87,15 @@ button:disabled { opacity: 0.45; cursor: default; border-color: var(--border); }
 button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); min-width: 96px; font-weight: 600; }
 
 .slider { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.9rem; }
+.slider select {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 5px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+}
 .slider output { min-width: 2ch; color: var(--text); font-weight: 600; }
 input[type="range"] { accent-color: var(--accent); }
 

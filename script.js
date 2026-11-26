@@ -4,7 +4,7 @@
   const $ = (id) => document.getElementById(id);
   const els = {
     prev: $('btnPrev'), play: $('btnPlay'), next: $('btnNext'), reset: $('btnReset'),
-    random: $('btnRandom'), size: $('size'), sizeVal: $('sizeVal'), speed: $('speed'),
+    random: $('btnRandom'), size: $('size'), sizeVal: $('sizeVal'), speed: $('speed'), order: $('order'),
     form: $('customForm'), custom: $('customInput'), customError: $('customError'),
     scrub: $('scrub'), stepCount: $('stepCount'),
     explain: $('explain'), bars: $('bars'), merge: $('merge'), tree: $('tree'),
@@ -13,7 +13,7 @@
   };
 
   // Pseudocode shown on the page. Steps refer to these lines by 1-based number.
-  const CODE = [
+  const codeFor = (desc) => [
     'mergeSort(A, lo, hi):',
     '  if lo >= hi: return   // size 1',
     '  mid = floor((lo + hi) / 2)',
@@ -25,7 +25,7 @@
     '  L = A[lo..mid];  R = A[mid+1..hi]',
     '  i = 0;  j = 0;  k = lo',
     '  while i < len(L) and j < len(R):',
-    '    if L[i] <= R[j]: A[k] = L[i]; i++',
+    `    if L[i] ${desc ? '>=' : '<='} R[j]: A[k] = L[i]; i++`,
     '    else:            A[k] = R[j]; j++',
     '    k++',
     '  copy whatever is left of L or R into A',
@@ -63,8 +63,11 @@
   }
 
   // Runs merge sort once and records a snapshot for every teaching moment.
-  function buildSteps(source) {
+  function buildSteps(source, desc) {
     const a = source.slice();
+    const orderName = desc ? 'descending' : 'ascending';
+    // Ties go to L in both orders, which keeps the sort stable.
+    const leftFirst = (x, y) => (desc ? x >= y : x <= y);
     const out = [];
     const status = {}; // "lo-hi" -> { s: 'active' | 'waiting' | 'sorted', v?: values }
     const stack = [];
@@ -77,7 +80,7 @@
 
     snap({
       phase: 'start', lines: [],
-      msg: `Start with the unsorted array <b>${fmt(a)}</b>. Merge sort splits it in half again and again until every piece has one element, then merges the pieces back together in order.`,
+      msg: `Goal: sort <b>${fmt(a)}</b> in <b>${orderName}</b> order. Merge sort splits it in half again and again until every piece has one element, then merges the pieces back together in order.`,
     });
 
     function sort(lo, hi) {
@@ -124,12 +127,11 @@
 
       while (i < L.length && j < R.length) {
         comparisons++;
-        const takeL = L[i] <= R[j];
+        const takeL = leftFirst(L[i], R[j]);
+        const rel = takeL ? (desc ? '≥' : '≤') : (desc ? '<' : '>');
         snap({
           ...base, phase: 'compare', i, j, k, take: takeL ? 'L' : 'R', lines: [11, takeL ? 12 : 13],
-          msg: takeL
-            ? `Compare L[${i}] = <b>${L[i]}</b> with R[${j}] = <b>${R[j]}</b>. ${L[i]} ≤ ${R[j]}, so take <b>${L[i]}</b> from L.`
-            : `Compare L[${i}] = <b>${L[i]}</b> with R[${j}] = <b>${R[j]}</b>. ${L[i]} > ${R[j]}, so take <b>${R[j]}</b> from R.`,
+          msg: `Compare L[${i}] = <b>${L[i]}</b> with R[${j}] = <b>${R[j]}</b>. ${L[i]} ${rel} ${R[j]}, so take <b>${takeL ? L[i] : R[j]}</b> from ${takeL ? 'L' : 'R'}.`,
         });
         const v = takeL ? L[i] : R[j];
         a[k] = v;
@@ -164,7 +166,7 @@
     sort(0, a.length - 1);
     snap({
       phase: 'done', lines: [],
-      msg: `Done! The array is sorted: <b>${fmt(a)}</b>. It took ${comparisons} comparisons and ${writes} writes for n = ${a.length}. (n·log₂n ≈ ${Math.round(a.length * Math.log2(a.length))})`,
+      msg: `Done! The array is sorted in ${orderName} order: <b>${fmt(a)}</b>. It took ${comparisons} comparisons and ${writes} writes for n = ${a.length}. (n·log₂n ≈ ${Math.round(a.length * Math.log2(a.length))})`,
     });
     return out;
   }
@@ -173,7 +175,7 @@
 
   function setupCode() {
     els.code.innerHTML = '';
-    lineEls = CODE.map((text, idx) => {
+    lineEls = codeFor(els.order.value === 'desc').map((text, idx) => {
       const span = document.createElement('span');
       span.className = 'ln';
       span.innerHTML = `<span class="num">${text ? idx + 1 : ''}</span>`;
@@ -367,9 +369,10 @@
     pause();
     input = arr;
     tree = buildTree(arr.length);
-    steps = buildSteps(arr);
+    steps = buildSteps(arr, els.order.value === 'desc');
     cur = 0;
     els.scrub.max = steps.length - 1;
+    setupCode();
     setupBars();
     setupTree();
     render();
@@ -407,6 +410,8 @@
   els.size.addEventListener('input', () => { els.sizeVal.textContent = els.size.value; });
   els.size.addEventListener('change', loadRandom);
   els.scrub.addEventListener('input', () => go(Number(els.scrub.value)));
+  // Re-run on the same numbers so students can compare the two orders.
+  els.order.addEventListener('change', () => load(input));
 
   els.form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -420,7 +425,7 @@
 
   document.addEventListener('keydown', (e) => {
     const tag = e.target.tagName;
-    if (tag === 'INPUT' && e.target.type === 'text') return;
+    if ((tag === 'INPUT' && e.target.type === 'text') || tag === 'SELECT') return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     switch (e.key) {
       case ' ':
@@ -439,6 +444,5 @@
   });
 
   // ---------- Start ----------
-  setupCode();
   load([38, 27, 43, 3, 9, 82, 10, 19]);
 })();

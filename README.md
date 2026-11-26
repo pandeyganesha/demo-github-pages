@@ -9,6 +9,7 @@ An interactive, step-by-step visualizer that teaches how merge sort works. It is
 - A divide-and-conquer tree with one box for each recursive call
 - Pseudocode with the current line highlighted, plus the live call stack
 - Play/pause, step forward and back, a scrubber to jump to any step, and a speed control
+- Ascending or descending order
 - Random arrays (4–32 items) or your own numbers
 - Comparison and write counters
 - Keyboard shortcuts: `Space`, `←`, `→`, `R`, `N`
