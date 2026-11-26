@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Merge Sort Visualizer</title>
+  <meta name="description" content="An interactive, step-by-step visualizer that shows students how the merge sort algorithm divides, sorts and merges an array.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Merge Sort Visualizer</h1>
+    <p class="sub">Split the array in half until each piece has one element, then merge the pieces back together in order. Step through it to see every comparison.</p>
+  </header>
+
+  <main>
+    <section class="card controls" aria-label="Controls">
+      <div class="row">
+        <button id="btnPrev" title="Previous step (← key)">◀ Back</button>
+        <button id="btnPlay" class="primary" title="Play / pause (Space)">▶ Play</button>
+        <button id="btnNext" title="Next step (→ key)">Next ▶</button>
+        <button id="btnReset" title="Go to the first step (R key)">⟲ Restart</button>
+      </div>
+      <div class="row">
+        <label class="slider">Size
+          <input type="range" id="size" min="4" max="32" value="8">
+          <output id="sizeVal">8</output>
+        </label>
+        <label class="slider">Speed
+          <input type="range" id="speed" min="1" max="10" value="5">
+        </label>
+        <button id="btnRandom" title="Generate a new random array (N key)">New random array</button>
+      </div>
+      <form id="customForm" class="row custom">
+        <input id="customInput" type="text" inputmode="numeric" autocomplete="off"
+               placeholder="Or type your own numbers, e.g. 38, 27, 43, 3, 9, 82, 10">
+        <button type="submit">Use my numbers</button>
+        <span id="customError" class="error" role="alert"></span>
+      </form>
+      <div class="scrub">
+        <input type="range" id="scrub" min="0" max="0" value="0" aria-label="Jump to step">
+        <span id="stepCount">Step 0 / 0</span>
+      </div>
+    </section>
+
+    <section class="card stage" aria-label="Visualization">
+      <p class="explain" id="explain" aria-live="polite"></p>
+      <div class="bars" id="bars"></div>
+      <div class="legend">
+        <span><i class="sw left"></i>left half</span>
+        <span><i class="sw right"></i>right half</span>
+        <span><i class="sw merged"></i>merged so far</span>
+        <span><i class="sw stale"></i>about to be overwritten</span>
+        <span><i class="sw sorted"></i>sorted piece</span>
+        <span><i class="sw dim"></i>not being worked on</span>
+      </div>
+      <div class="merge" id="merge"></div>
+      <div class="stats">
+        <div><span id="statCmp">0</span><small>comparisons</small></div>
+        <div><span id="statWrites">0</span><small>writes to array</small></div>
+        <div><span id="statDepth">0</span><small>recursion depth</small></div>
+      </div>
+    </section>
+
+    <section class="grid2">
+      <div class="card">
+        <h2>Divide &amp; conquer tree</h2>
+        <p class="hint">Each box is one call to <code>mergeSort</code>. Going down = splitting. Turning green = that piece is sorted.</p>
+        <div class="tree" id="tree"></div>
+      </div>
+      <div class="card">
+        <h2>Pseudocode</h2>
+        <pre class="code" id="code"></pre>
+        <h3>Call stack</h3>
+        <div class="stack" id="stack"></div>
+      </div>
+    </section>
+
+    <section class="card learn">
+      <h2>How merge sort works</h2>
+      <ol>
+        <li><strong>Divide:</strong> split the array into two halves at the middle index.</li>
+        <li><strong>Conquer:</strong> sort each half by calling merge sort on it (recursion). An array with one element is already sorted, so that's where the recursion stops.</li>
+        <li><strong>Combine:</strong> merge the two sorted halves. Compare the front item of each half, copy the smaller one into the array, and move that half's pointer forward. When one half runs out, copy the rest of the other half.</li>
+      </ol>
+      <div class="facts">
+        <div><strong>O(n log n)</strong><small>time in the best, average and worst case</small></div>
+        <div><strong>O(n)</strong><small>extra space for the L and R copies</small></div>
+        <div><strong>Stable</strong><small>equal values keep their order, because ties take from L first (<code>&lt;=</code>)</small></div>
+      </div>
+      <p class="why"><strong>Why n log n?</strong> Halving n elements until each piece has one takes about log₂ n levels (that's the height of the tree above). On every level, merging touches each of the n elements once. So the total work is about n × log₂ n.</p>
+      <p class="keys">Keyboard: <kbd>Space</kbd> play/pause · <kbd>←</kbd> <kbd>→</kbd> step · <kbd>R</kbd> restart · <kbd>N</kbd> new array</p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
